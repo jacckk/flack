@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>
+      {%- if not page_title -%}
+        Flack
+      {%- else -%}
+          {{ page_title }}
+      {%- endif -%}
+    </title>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+
+    {% block head_additional %}{% endblock %}
+    </head>
+
+  <body>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="social-bar">
+                <ul class="social-icons">
+                    <li class="visible-xs">
+                        <a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="http://facebook.com/"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="http://github.com/"><i class="fa fa-github-alt" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="https://mx.linkedin.com/in/"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="http://codepen.io/"><i class="fa fa-codepen" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="/logout"><i class="fa fa-dribbble" aria-hidden="true"></i></a>
+                    </li>
+                </ul>
+            </div>
+
+
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand" style="display:block">
+                    <a href=""><i class="fa fa-search" style="font-size:20px; color:#AB9BA9;float:right;line-height:60px;" aria-hidden="true"></i></a>
+                    <a href="#" style="float:left">
+                        FLACK
+                    </a>
+
+                </li>
+                <li class="sidebar-list-name">
+                    <a href="#">CHANNELS</a>
+                </li>
+                {% for channel in channels %}
+                <li class="li-no-hover channel" data-channel-id="{{channel.channel_id}}"><a class="white" href="#">#{{channel.name}}</a></li>
+                {% endfor %}
+            </ul>
+{#
+    <!--        <div class="profile">
+
+            <ul class="sidebar-profile-container">
+                <li class="boldy">
+                    <a href="#">{{ site.alias }}</a>
+                </li>
+                <li class="status">
+                    <a href="#"><i class="fa fa-circle green status fa-fw" aria-hidden="true"></i>online</a>
+                </li>
+            </ul>
+            </div>-->
+#}
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div id="message_container">
+                </div>
+                <div id="send_container">
+                  <div id="send_input" contenteditable="true"></div>
+                  <i id="send" class="fa fa-paper-plane" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /#wrapper -->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-2.x-git.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      var selected_channel_id = 0;
+      var last_message_time = 0;
+      var check_new_messages = false;
+      $(document).ready(function(){
+        $('#page-content-wrapper').fadeIn();
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+
+        function parse_message(message) {
+          if (message.timestamp > last_message_time) {
+            last_message_time = message.timestamp;
+          }
+          $('#message_container').append('<div class="message received"><span class="message_user">'+ message['name'] +':</span>' + message['message'] + '</div>')
+        }
+
+        function load_all_messages(channel_id) {
+          $('#message_container').empty();
+          $.getJSON( "/get_messages?channel_id=" + channel_id, function( data ) {
+            data.forEach(function(message) {
+              parse_message(message);
+            })
+            check_new_messages = true;
+          })
+        }
+
+        function get_new_messages() {
+          $.getJSON( "/get_messages?channel_id=" + selected_channel_id + '&since='+last_message_time, function( data ) {
+            data.forEach(function(message) {
+              parse_message(message);
+            })
+          })
+        }
+
+        $('.channel').click(function() {
+          check_new_messages = false;
+          selected_channel_id = $(this).attr('data-channel-id');
+          last_message_time = 0;
+          load_all_messages(selected_channel_id);
+        })
+
+        $('#send_input').keypress(function(e) {
+            if(e.which == 13) {
+                if(selected_channel_id == 0) { return; }
+                /* Enter was pressed, sent message */
+                $.ajax({
+                  method: "POST",
+                  url: "/send_message",
+                  data: {channel_id: selected_channel_id, message: $(this).text()}
+                }).done(function() {
+
+                  $('#send_input').text('');
+                });
+
+            }
+        });
+
+        /* Retrieve new messages every 2 secs */
+        setInterval(function() {
+          if(check_new_messages)
+          {
+            get_new_messages();
+          }
+        },2000);
+      });
+    </script>
+</body>
+</html>

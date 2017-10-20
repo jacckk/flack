@@ -1,0 +1,94 @@
+
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        
+        <div class="social-bar">
+            <ul class="social-icons">
+                <li class="visible-xs">
+                    <a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a>
+                </li>
+                <li>
+                    <a href="http://facebook.com/{{ site.facebook }}"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                </li>
+                <li>
+                    <a href="http://github.com/{{ site.github }}"><i class="fa fa-github-alt" aria-hidden="true"></i></a>
+                </li>
+                <li>
+                    <a href="https://mx.linkedin.com/in/{{ site.linkedin }}"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+                </li>
+                <li>
+                    <a href="http://codepen.io/{{ site.codepen }}"><i class="fa fa-codepen" aria-hidden="true"></i></a>
+                </li>
+                <li>
+                    <a href="http://dribbble.com/{{ site.dribbble }}"><i class="fa fa-dribbble" aria-hidden="true"></i></a>
+                </li>
+            </ul>
+        </div>
+        
+        
+        <ul class="sidebar-nav">
+            <li class="sidebar-brand" style="display:block">
+                <a href=""><i class="fa fa-search" style="font-size:20px; color:#AB9BA9;float:right;line-height:60px;" aria-hidden="true"></i></a>
+                <a href="#" style="float:left">
+                    {{ site.url }}
+                </a>
+                
+            </li>
+            <li class="sidebar-list-name">
+                <a href="#">NAVIGATION</a>
+            </li>
+            {% for my_page in site.pages %}
+                {% if my_page.title %}
+                    {% if page.url == my_page.url %}
+                        <li class="li-no-hover"><a class="white active" href="{{ my_page.url | prepend: site.baseurl }}"># {{ my_page.title }}</a></li>
+                    {% elsif page.layout == "post" and my_page.title == "blog"  %}
+                        <li class="li-hover"><a class="white active" href="{{ my_page.url | prepend: site.baseurl }}"># {{ my_page.title }}</a></li>
+                    {% else %}
+                        <li class="li-hover"><a class="" href="{{ my_page.url | prepend: site.baseurl }}"># {{ my_page.title }}</a></li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        
+        <ul class="sidebar-nav">
+            <li class="sidebar-list-name">
+                <a href="#">TAGS</a>
+            </li>
+            {% for category in site.categories %}
+                <li>
+                    <a href="#"><i class="fa fa-heart green fa-fw" aria-hidden="true"></i> {{ category | first }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+        
+<!--        <div class="profile">
+            
+        <ul class="sidebar-profile-container">
+            <li class="boldy">
+                <a href="#">{{ site.alias }}</a>
+            </li>
+            <li class="status">
+                <a href="#"><i class="fa fa-circle green status fa-fw" aria-hidden="true"></i>online</a>
+            </li>
+        </ul>
+        </div>-->
+                
+    </div>
+    <!-- /#sidebar-wrapper -->
+    
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    {{ content }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /#wrapper -->
+

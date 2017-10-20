@@ -1,2 +1,2 @@
 # flack
-Quick and dirty slack in Flask.
+Quick and dirty chat written in Flask, uses ajax requests to fetch new messages.
